@@ -5,7 +5,7 @@ const studentSchema = new mongoose.Schema({
         type: String,
         required: true,
         trim: true,
-        lowercase: true,
+        // lowercase: true,
         unique: true,
         minlength: [3, 'Name must be at least 3 characters long'],
     },
@@ -13,7 +13,7 @@ const studentSchema = new mongoose.Schema({
         type: String,
         required: true,
         trim: true,
-        lowercase: true,
+        // lowercase: true,
         unique: true,
         minlength: [10, 'Email must be at least 10 characters long'],
 

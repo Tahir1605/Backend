@@ -18,7 +18,7 @@ const CORS_ORIGIN = process.env.CORS_ORIGIN || 'http://localhost:5173';
 
 app.use(cors({
   origin: CORS_ORIGIN,
-  methods: ['POST'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
   credentials: true
 }));
 
@@ -184,7 +184,74 @@ app.post('/api/student-register', upload.single('image'),
   });
 
 
+  app.get('/api/students', async (req, res) => {
+  try {
+    const students = await Student.find(); // fetch all student records
+    res.status(200).json(students);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching students', error });
+  }
+});
 
+
+app.delete('/api/students-delete/:id', async (req, res) => {
+  try {
+    const student = await Student.findByIdAndDelete(req.params.id);
+    if (!student) {
+      return res.status(404).json({ message: 'Student not found' });
+    }
+
+    res.status(200).json({ message: 'Student deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error deleting student', error });
+  }
+});
+
+
+app.put('/api/students-update/:id', upload.single('image'), 
+  body('email').trim().isEmail(),
+  body('name').trim().isLength({ min: 3 }),
+  body('mobile').trim().isLength({ min: 10 }),
+  async (req, res) => {
+
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        errors: errors.array(),
+        message: 'Invalid data',
+      });
+    }
+
+    try {
+      const { name, email, mobile } = req.body;
+      const image = req.file ? req.file.filename : null; // New image if provided, else use null
+
+      // Find student by ID
+      const student = await Student.findById(req.params.id);
+      if (!student) {
+        return res.status(404).json({ message: 'Student not found' });
+      }
+
+      // Update the student fields
+      student.name = name || student.name; // Update name only if new value is provided
+      student.email = email || student.email; // Update email if new value is provided
+      student.mobile = mobile || student.mobile; // Update mobile if new value is provided
+
+      // Update image if a new image is uploaded
+      if (image) {
+        student.image = image;
+      }
+
+      // Save updated student
+      await student.save();
+
+      res.status(200).json({ message: 'Student updated successfully', student });
+
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Error updating student', error });
+    }
+  });
 
 
 
