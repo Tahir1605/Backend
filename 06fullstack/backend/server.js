@@ -22,7 +22,7 @@ app.use(cors({
   credentials: true
 }));
 
-app.use(bodyParser.json());
+// app.use(bodyParser.json());
 
 
 const connectDB = require('./config/connection');
