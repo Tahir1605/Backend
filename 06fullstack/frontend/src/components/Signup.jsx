@@ -76,7 +76,7 @@ function Signup() {
           </div>
         )}
 
-        <form className="space-y-5" onSubmit={handleSubmit}>
+        <form className="space-y-5" onSubmit={handleSubmit} method=''>
           <div>
             <label htmlFor="username" className="block text-sm font-medium text-gray-300 mb-1">
               Username

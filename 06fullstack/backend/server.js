@@ -9,7 +9,7 @@ const User = require('./models/user');
 const Student = require('./models/student');
 const multer = require('multer');
 const path = require('path');
-const bodyParser = require('body-parser');
+// const bodyParser = require('body-parser');
 
 const app = express();
 
@@ -136,9 +136,6 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 
-
-
-
 app.post('/api/student-register', upload.single('image'),
   body('email').trim().isEmail(),
   body('name').trim().isLength({ min: 3 }),
@@ -186,7 +183,7 @@ app.post('/api/student-register', upload.single('image'),
 
   app.get('/api/students', async (req, res) => {
   try {
-    const students = await Student.find(); // fetch all student records
+    const students = await Student.find(); 
     res.status(200).json(students);
   } catch (error) {
     res.status(500).json({ message: 'Error fetching students', error });
