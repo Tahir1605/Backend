@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 function connectDB(){
-    mongoose.connect('mongodb+srv://5566tahirul:cNkUvwxqE0WqxMnd@test.dxadbnb.mongodb.net/TahirDB?retryWrites=true&w=majority&appName=Test').then(() => {
+    mongoose.connect(process.env.MONGODB_URL).then(() => {
         console.log("Database Connect Successfully");     
     }).catch((err) => {
         console.log("Database could not Connect",err.message);
