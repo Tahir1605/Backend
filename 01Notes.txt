@@ -255,6 +255,10 @@ action="/form" method="post" enctype="multipart/form-data"
 
 -> npm install express-validator
 
+in server js import validationResult and body
+
+-> import { validationResult , body } from 'express-validator'
+
 ******** code for field validation *******
 
 [
