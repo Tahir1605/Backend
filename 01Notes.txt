@@ -664,3 +664,52 @@ const updateClient = async (req, res) => {
         })
     }
 }
+
+
+******* How to insert multiple images ******
+
+Step 1:-> same multer setup as one image upload
+Step 2:-> same imageKit setup as one image upload
+
+Step 3:-> 
+
+const imageFiles = req.files; // because we’re using upload.array()
+
+        if (!imageFiles || imageFiles.length === 0) {
+            return res.json({
+                success: false,
+                message: "No files uploaded",
+            });
+        }
+
+        const uploadPromises = imageFiles.map(file => {
+            const fileBuffer = fs.readFileSync(file.path);
+
+            return imagekit.upload({
+                file: fileBuffer,
+                fileName: file.originalname,
+                folder: "/empImages",
+            });
+        });
+
+        const results = await Promise.all(uploadPromises);
+
+        // ✅ Optimize ImageKit URLs
+
+        const optimizedUrls = results.map(r =>
+            imagekit.url({
+                path: r.filePath,
+                transformation: [
+                    { quality: "auto" },  // Auto compression
+                    { format: "webp" },   // Convert to WebP
+                    { width: "1280" },    // Resize
+                ],
+            })
+        );
+
+        const newEmp = new Emp({
+          images:optimizedUrls
+        })
+
+Step 4:-> in router we have to use upload.array("images",5)
+//if i want to upload maximum 5 images 
