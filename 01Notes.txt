@@ -512,3 +512,155 @@ app.put("/users/update/:id", upload.single("image"),
     });
   }
 });
+
+
+********* How to test api in postman *******
+
+Step 1 :-> set the request type get , post , put , delete , 
+patch , head , options
+
+and then set the path ex:- http://localhost:3000/users
+
+if want to send form data ->
+
+body -> form-data -> set key and values -> send
+
+if want to update data or send normal data not form data
+
+body -> raw -> JSON -> send
+
+and send data in json format 
+
+ex :-> 
+
+{
+   "name"  : "Tahirul islam",
+   "email" : "5566tahirul@gmail.com"
+}
+
+
+********** Upload image file in Imagekit *******
+
+Step 1:-> imagekit setup
+
+in config -> imagekit.js
+
+import ImageKit from "imagekit";
+
+var imagekit = new ImageKit({
+    publicKey : process.env.IMAGEKIT_PUBLIC_KEY,
+    privateKey : process.env.IMAGEKIT_PRIVET_KEY,
+    urlEndpoint : process.env.IMAGEKIT_URL_ENDPOINT
+});
+
+export default imagekit;
+
+Step 2:-> 
+
+import fs from 'fs'
+import imagekit from '../config/imageKit.js';
+
+        //upload image to imagekit
+
+ const fileBuffer = fs.readFileSync(imageFile.path)
+        const response = await imagekit.upload({
+            file: fileBuffer,
+            fileName: imageFile.originalname,
+            folder: "/uploads"
+        })
+
+       // here imageFile is getting from req.file;
+       // optimize through imagekit URL transformation
+
+        const optimizeImageUrl = imagekit.url({
+            path: response.filePath,
+            transformation: [
+                { quality: 'auto' },  //Auto compression
+                { format: 'webp' },   // Convert to modern format
+                { width: '1280' }     // width resizing
+            ]
+        });
+
+        const image = optimizeImageUrl;
+
+
+  Step 3:->
+
+********* multer setup ********
+
+import multer from "multer";
+const upload = multer({storage:multer.diskStorage({})})
+export default upload;
+
+Step 4:-> 
+
+upload.single('image')
+
+send this as middleware in url
+
+
+********* update data and image file in imagekit ******
+
+const updateClient = async (req, res) => {
+    try {
+
+        const { id } = req.params;
+        const { name, email, password } = req.body;
+
+        const updateClient = await Client.findById(id);
+        if (!updateClient) {
+            return res.json({
+                success: false,
+                message: "Client not found"
+            })
+        }
+
+        if (name) updateClient.name = name
+        if (email) updateClient.email = email
+        if (password) {
+            const hashPassword = await bcrypt.hash(password, 10)
+            updateClient.password = hashPassword
+        }
+
+        if (req.file) {
+
+            //update image to imagekit
+
+            const fileBuffer = fs.readFileSync(imageFile.path)
+            const response = await imagekit.upload({
+                file: fileBuffer,
+                fileName: imageFile.originalname,
+                folder: "/uploads"
+            })
+
+            // optimize through imagekit URL transformation
+
+            const optimizeImageUrl = imagekit.url({
+                path: response.filePath,
+                transformation: [
+                    { quality: 'auto' },  //Auto compression
+                    { format: 'webp' },   // Convert to modern format
+                    { width: '1280' }     // width resizing
+                ]
+            });
+
+            updateClient.image = optimizeImageUrl;
+
+        }
+
+        await updateClient.save()
+
+        res.json({
+            success: true,
+            message: "Client updated successfully",
+            updatedData: updateClient
+        })
+
+
+    } catch (error) {
+        res.json({
+            success: false,
+            message: error.message || "Internal Server error"
+        })
+    }
+}
