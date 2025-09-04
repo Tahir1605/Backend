@@ -1,10 +1,21 @@
 import fs from 'fs'
 import imagekit from '../config/imageKit.js';
 import Client from '../models/client.js';
+import { validationResult } from 'express-validator';
 import bcrypt from 'bcrypt'
 
 const addClient = async (req, res) => {
     try {
+
+        const errors = validationResult(req)
+        const errMessage = errors.array().map(err => err.msg)
+
+        if(!errors.isEmpty()){
+            return res.json({
+                success:false,
+                message:errMessage
+            })
+        }
 
         const { name, email, password } = req.body;
         const imageFile = req.file;
