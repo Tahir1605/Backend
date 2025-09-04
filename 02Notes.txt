@@ -1,0 +1,93 @@
+*********** Basic Authentication **********
+
+Step 1 :-> install jsonwebtoken
+
+ -> npm i jsonwebtoken;
+
+ in controller -> 
+
+ authController -> 
+
+ import jwt from 'jsonwebtoken';
+
+const createToken = (id) => {
+    return jwt.sign({ id }, process.env.JWT_SECRET);
+}
+
+const loginUser = async (req, res) => {
+    try {
+
+        const { email, password } = req.body;
+
+        const existingUser = await Auth.findOne({ email });
+
+        if (!existingUser) {
+            return res.json({
+
+                success: false,
+                message: "User not exists"
+            })
+        }
+
+        const isMatch = await bcrypt.compare(password, existingUser.password);
+
+        if (isMatch) {
+            const token = createToken(existingUser._id);
+            return res.json({ 
+                success: true,
+                token 
+            });
+        }
+        else {
+            return res.json({ 
+                success: false,
+                message: 'Invalid credentials' });
+        }
+
+
+    } catch (error) {
+
+          res.json({
+            success:false,
+            message:error.message || "Internal server error"
+          })
+    }
+}
+
+export {loginUser}
+
+-> middlewares ->
+
+-> auth.js 
+
+import jwt from 'jsonwebtoken';
+
+const authUser = (req, res, next) => {
+
+    const {token} = req.headers;
+    
+    if (!token) {
+        return res.json({
+            success: false, 
+            message: "Not authorized , Login Again"
+        });
+    }
+
+    try {
+
+        const token_decode = jwt.verify(token, process.env.JWT_SECRET);
+        req.body.userId = token_decode.id;
+        next();
+    } catch (error) {
+        console.log(error);
+        res.json({success: false, message: error.message});
+        
+    }
+}
+export default authUser;
+
+in router -> 
+
+authRouter.post('/login',loginUser)
+
+app.use('/api/auth',authRouter)
