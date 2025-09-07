@@ -1,21 +1,20 @@
-import React, { useState } from "react";
+
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
 
 const Navbar = () => {
-    const [token , setToken] = useState('')
     const navigate = useNavigate() 
+
     const logout = () => {
-    navigate("/login");
     localStorage.removeItem("token");
+    navigate("/login");
   }
 
   const protectHome = () => {
     const getToken = JSON.parse(localStorage.getItem("token"));
-    setToken(getToken)
-    if(!token){
+    if(!getToken){
         toast.error("Please Login !")
     }
   }

@@ -88,4 +88,4 @@ Type -> 2
 app.use(cors()) -> this allow all the frontend routes for accessing 
 Our website backend url
 
-1 -> BasicCors -> FullCrud -> EmailSend -> AdvanceAuth
+1 -> BasicCors -> EmailSend -> FullCrud -> AdvanceAuth
