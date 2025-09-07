@@ -56,38 +56,36 @@ const loginUser = async (req, res) => {
 
 export {loginUser}
 
--> middlewares ->
-
--> auth.js 
-
-import jwt from 'jsonwebtoken';
-
-const authUser = (req, res, next) => {
-
-    const {token} = req.headers;
-    
-    if (!token) {
-        return res.json({
-            success: false, 
-            message: "Not authorized , Login Again"
-        });
-    }
-
-    try {
-
-        const token_decode = jwt.verify(token, process.env.JWT_SECRET);
-        req.body.userId = token_decode.id;
-        next();
-    } catch (error) {
-        console.log(error);
-        res.json({success: false, message: error.message});
-        
-    }
-}
-export default authUser;
 
 in router -> 
 
 authRouter.post('/login',loginUser)
 
 app.use('/api/auth',authRouter)
+
+
+          ********** CORS *********
+CORS -> (cross origin resource sharing)
+
+Step 1:-> 
+
+npm i cors 
+
+in server.js ->
+
+Type -> 1
+
+import cors from 'cors'
+
+app.use(cors({
+  origin: CORS_ORIGIN, -> this is the port where frontend is running
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true
+}));
+
+Type -> 2
+
+app.use(cors()) -> this allow all the frontend routes for accessing 
+Our website backend url
+
+1 -> BasicCors -> FullCrud -> EmailSend -> AdvanceAuth
